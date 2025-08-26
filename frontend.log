@@ -1,0 +1,331 @@
+
+> sentinel-qos-dashboard@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.2
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+
+   We detected TypeScript in your project and reconfigured your tsconfig.json file for you. Strict-mode is set to false by default.
+   The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+
+   	- allowJs was set to true
+   	- noEmit was set to true
+   	- incremental was set to true
+   	- include was set to ['next-env.d.ts', '.next/types/**/*.ts', '**/*.ts', '**/*.tsx']
+   	- plugins was updated to add { name: 'next' }
+
+   The following mandatory changes were made to your tsconfig.json:
+
+   	- resolveJsonModule was set to true (to match webpack resolution)
+   	- isolatedModules was set to true (requirement for SWC / Babel)
+   	- jsx was set to preserve (next.js implements its own optimized jsx transform)
+
+ ✓ Ready in 4.6s
+ Your page app/page.tsx did not have a root layout. We created app/layout.tsx for you.
+ ○ Compiling / ...
+ ✓ Compiled / in 7.1s (1483 modules)
+ GET / 200 in 7652ms
+ GET / 200 in 175ms
+ ✓ Compiled in 1215ms (1485 modules)
+ ✓ Compiled in 570ms (1485 modules)
+ ✓ Compiled in 953ms (1485 modules)
+ ✓ Compiled in 806ms (1485 modules)
+ ✓ Compiled in 400ms (1485 modules)
+ ✓ Compiled in 797ms (1485 modules)
+ ✓ Compiled in 385ms (1485 modules)
+ ✓ Compiled in 655ms (1485 modules)
+ ✓ Compiled in 304ms (1485 modules)
+ ✓ Compiled in 803ms (1485 modules)
+ GET / 200 in 340ms
+ GET / 200 in 22ms
+Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+    at async Object.readdir (node:internal/fs/promises:956:18)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+    at async Object.readdir (node:internal/fs/promises:956:18)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+    at async Object.readdir (node:internal/fs/promises:956:18)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+    at async Object.readdir (node:internal/fs/promises:956:18)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+    at async Object.readdir (node:internal/fs/promises:956:18)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+    at async Object.readdir (node:internal/fs/promises:956:18)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ Module not found: Error: Can't resolve 'next-flight-client-entry-loader' in '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard'
+Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+    at async Object.readdir (node:internal/fs/promises:956:18)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+    at async Object.readdir (node:internal/fs/promises:956:18)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+    at async Object.readdir (node:internal/fs/promises:956:18)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:39:29
+    at async Promise.all (index 0)
+    at async recursiveReadDir (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/lib/recursive-readdir.js:32:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:71:25
+    at async Promise.all (index 0)
+    at async BatchedFileReader.load (/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:67:25)
+    at async /Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/server/future/route-matcher-providers/dev/helpers/file-reader/batched-file-reader.js:41:26 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ ./
+Module not found: Can't resolve '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/client/components/not-found-boundary.js'
+
+https://nextjs.org/docs/messages/module-not-found
+[Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ ./
+Module not found: Can't resolve '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/client/components/not-found-boundary.js'
+
+https://nextjs.org/docs/messages/module-not-found
+    [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ ./
+Module not found: Can't resolve '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/client/components/not-found-boundary.js'
+
+https://nextjs.org/docs/messages/module-not-found
+[Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ ./
+Module not found: Can't resolve '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/client/components/not-found-boundary.js'
+
+https://nextjs.org/docs/messages/module-not-found
+[Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ ./
+Module not found: Can't resolve '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/client/components/not-found-boundary.js'
+
+https://nextjs.org/docs/messages/module-not-found
+[Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ ./
+Module not found: Can't resolve '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/client/components/not-found-boundary.js'
+
+https://nextjs.org/docs/messages/module-not-found
+[Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ ./
+Module not found: Can't resolve '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/client/components/not-found-boundary.js'
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./
+Module not found: Can't resolve '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/client/components/not-found-boundary.js'
+
+https://nextjs.org/docs/messages/module-not-found
+[Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, scandir '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'scandir',
+  path: '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/src/app'
+}
+ ⨯ ./
+Module not found: Can't resolve '/Users/pulastsinghtiwari/Downloads/VS code/Samsung EnnovateX/sentinel-qos-dashboard/node_modules/next/dist/client/components/not-found-boundary.js'
+
+https://nextjs.org/docs/messages/module-not-found
