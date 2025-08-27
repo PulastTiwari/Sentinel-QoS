@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils"
 import { ModelInfoCard } from "@/components/model/model-info-card"
 import { TrainingInstructions } from "@/components/model/training-instructions"
 import { FeatureImportance } from "@/components/model/feature-importance"
-import { Sidebar } from "@/components/layout/sidebar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -48,8 +47,7 @@ export default function ModelPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
+    <div className="flex h-screen">
 
       <main className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useLiveStatus } from "@/hooks/use-live-status"
-import { Sidebar } from "@/components/layout/sidebar"
+// Sidebar removed — navigation is now site-wide via NavBar and top-left logo
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -68,13 +68,13 @@ export default function InvestigationsPage() {
   }
 
   const getStatusCounts = () => {
-    return {
-      total: investigations.length,
-      open: investigations.filter((inv) => inv.status === "open").length,
-      inProgress: investigations.filter((inv) => inv.status === "in-progress").length,
-      resolved: investigations.filter((inv) => inv.status === "resolved").length,
-      escalated: investigations.filter((inv) => inv.status === "escalated").length,
-    }
+  const open = investigations.filter((inv) => inv.status === "open").length
+  const inProgress = investigations.filter((inv) => inv.status === "in-progress").length
+  const resolved = investigations.filter((inv) => inv.status === "resolved").length
+  const escalated = investigations.filter((inv) => inv.status === "escalated").length
+  const total = investigations.length
+
+  return { total, open, inProgress, resolved, escalated }
   }
 
   const statusCounts = getStatusCounts()
@@ -82,7 +82,6 @@ export default function InvestigationsPage() {
   if (error) {
     return (
       <div className="flex h-screen">
-        <Sidebar />
         <div className="flex-1 p-6">
           <Alert variant="destructive">
             <AlertTitle>Connection Error</AlertTitle>
@@ -98,10 +97,8 @@ export default function InvestigationsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
-
-      <main className="flex-1 overflow-auto">
+    <div className="flex h-screen">
+  <main className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">
           {/* Header */}
           <div>

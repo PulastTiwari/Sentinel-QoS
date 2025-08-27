@@ -6,7 +6,7 @@ import { useState } from "react"
 import { useLiveStatus } from "@/hooks/use-live-status"
 import { LiveTrafficTable } from "@/components/traffic/live-traffic-table"
 import { FlowDetailPanel } from "@/components/traffic/flow-detail-panel"
-import { Sidebar } from "@/components/layout/sidebar"
+// Sidebar removed — navigation is now site-wide via NavBar and top-left logo
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { Flow } from "@/lib/types"
 
@@ -17,7 +17,6 @@ export default function TrafficPage() {
   if (error) {
     return (
       <div className="flex h-screen">
-        <Sidebar />
         <div className="flex-1 p-6">
           <Alert variant="destructive">
             <AlertTitle>Connection Error</AlertTitle>
@@ -33,8 +32,7 @@ export default function TrafficPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
+    <div className="flex h-screen">
 
       <main className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">

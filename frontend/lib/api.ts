@@ -1,6 +1,12 @@
 import type { FlowFeatures, ClassificationResult, StatusResponse, Suggestion } from "./types"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
+let ADMIN_AUTH_HEADER: string | null = null
+
+export function setAdminAuth(username: string, password: string) {
+  const v = typeof window !== "undefined" ? btoa(`${username}:${password}`) : Buffer.from(`${username}:${password}`).toString("base64")
+  ADMIN_AUTH_HEADER = `Basic ${v}`
+}
 
 class ApiError extends Error {
   constructor(
@@ -68,6 +74,33 @@ export const api = {
     return apiRequest(`/suggestions/${suggestionId}/deny`, {
       method: "POST",
     })
+  },
+  // --- Admin utilities ---
+  async setSimulation(enabled: boolean) {
+  const form = new FormData()
+  form.append("enabled", String(enabled))
+  const res = await fetch(`${API_BASE_URL}/admin/simulate`, { method: "POST", body: form, headers: ADMIN_AUTH_HEADER ? { Authorization: ADMIN_AUTH_HEADER } : undefined })
+  return await res.json()
+  },
+
+  async uploadModel(file: File) {
+    const form = new FormData()
+    form.append("file", file)
+  const res = await fetch(`${API_BASE_URL}/admin/upload-model`, { method: "POST", body: form, headers: ADMIN_AUTH_HEADER ? { Authorization: ADMIN_AUTH_HEADER } : undefined })
+    return await res.json()
+  },
+
+  async getLlmSettings() {
+  const res = await fetch(`${API_BASE_URL}/admin/llm-settings`, { headers: ADMIN_AUTH_HEADER ? { Authorization: ADMIN_AUTH_HEADER } : undefined })
+  return await res.json()
+  },
+
+  async setLlmSettings(llm_enabled: boolean, llm_model: string) {
+    const form = new FormData()
+    form.append("llm_enabled", String(llm_enabled))
+    form.append("llm_model", llm_model)
+  const res = await fetch(`${API_BASE_URL}/admin/llm-settings`, { method: "POST", body: form, headers: ADMIN_AUTH_HEADER ? { Authorization: ADMIN_AUTH_HEADER } : undefined })
+    return await res.json()
   },
 }
 

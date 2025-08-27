@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useLiveStatus } from "@/hooks/use-live-status"
 import { SuggestionsList } from "@/components/suggestions/suggestions-list"
 import { SuggestionAnalytics } from "@/components/suggestions/suggestion-analytics"
-import { Sidebar } from "@/components/layout/sidebar"
+// Sidebar removed — navigation is now site-wide via NavBar and top-left logo
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { api, ApiError } from "@/lib/api"
 import type { Suggestion } from "@/lib/types"
@@ -45,7 +45,6 @@ export default function SuggestionsPage() {
   if (statusError || error) {
     return (
       <div className="flex h-screen">
-        <Sidebar />
         <div className="flex-1 p-6">
           <Alert variant="destructive">
             <AlertTitle>Connection Error</AlertTitle>
@@ -63,10 +62,8 @@ export default function SuggestionsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
-
-      <main className="flex-1 overflow-auto">
+    <div className="flex h-screen">
+  <main className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">
           {/* Header */}
           <div>

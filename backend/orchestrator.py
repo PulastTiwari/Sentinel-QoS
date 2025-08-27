@@ -4,6 +4,9 @@ import subprocess
 import sys
 import platform
 from fastapi import FastAPI
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import Depends, HTTPException, status
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Optional, Any
@@ -11,6 +14,7 @@ import json
 import time
 import shlex
 from sentinel_ai_classifier import classify_traffic as hybrid_classify, init_sentry
+from fastapi import UploadFile, File, Form
 
 # Optional dependency for Sentry model loading
 try:
@@ -22,6 +26,21 @@ except Exception:
 
 # --- Configuration & State Management ---
 app = FastAPI()
+
+# Basic auth for admin endpoints
+security = HTTPBasic()
+ADMIN_USER = os.environ.get("SENTINEL_ADMIN_USER", "admin")
+ADMIN_PASS = os.environ.get("SENTINEL_ADMIN_PASS", "admin")
+
+def require_admin(creds: HTTPBasicCredentials = Depends(security)):
+    # simple constant-time comparison
+    import secrets
+
+    correct_user = secrets.compare_digest(creds.username, ADMIN_USER)
+    correct_pass = secrets.compare_digest(creds.password, ADMIN_PASS)
+    if not (correct_user and correct_pass):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized", headers={"WWW-Authenticate": "Basic"})
+    return True
 
 # Allow CORS for our Next.js frontend
 app.add_middleware(
@@ -48,6 +67,12 @@ state = {
         "low_prio": {"bandwidth": 0, "packets": 0},
     }
 }
+
+# Admin runtime flags
+state.setdefault("admin", {})
+state["admin"]["simulate_enabled"] = True
+state["admin"]["llm_enabled"] = True
+state["admin"]["llm_model"] = "mistral"
 
 # Sentinel-QoS Policy Map: Connects AI classification to network action
 POLICY_DEFINITIONS = {
@@ -312,6 +337,11 @@ async def simulate_traffic():
     while True:
         await asyncio.sleep(random.uniform(2, 5))
 
+        # respect admin toggle
+        if not state.get("admin", {}).get("simulate_enabled", True):
+            await asyncio.sleep(1)
+            continue
+
         # Simulate a new flow appearing
         flow_counter += 1
         source_ip = f"192.168.1.{random.randint(100, 200)}"
@@ -377,6 +407,43 @@ async def startup_event():
     # run init_sentry in executor to avoid blocking startup if joblib load is slow
     await loop.run_in_executor(None, init_sentry)
     asyncio.create_task(simulate_traffic())
+
+
+# --- Admin endpoints (minimal) ---
+@app.post("/admin/simulate")
+async def set_simulation(enabled: bool = Form(...), authorized: bool = Depends(require_admin)):
+    """Enable or disable background traffic simulation."""
+    state.setdefault("admin", {})["simulate_enabled"] = bool(enabled)
+    return {"simulate_enabled": state["admin"]["simulate_enabled"]}
+
+
+@app.post("/admin/upload-model")
+async def upload_model(file: UploadFile = File(...), authorized: bool = Depends(require_admin)):
+    """Upload a sentry model payload (joblib/.pkl). Saves to working dir as sentry_model.pkl"""
+    contents = await file.read()
+    out_path = "sentry_model.pkl"
+    try:
+        with open(out_path, "wb") as fh:
+            fh.write(contents)
+        # Attempt to re-init sentry in executor
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, init_sentry)
+        return {"saved": out_path}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.get("/admin/llm-settings")
+async def get_llm_settings(authorized: bool = Depends(require_admin)):
+    admin = state.get("admin", {})
+    return {"llm_enabled": admin.get("llm_enabled", True), "llm_model": admin.get("llm_model", "mistral")}
+
+
+@app.post("/admin/llm-settings")
+async def set_llm_settings(llm_enabled: bool = Form(...), llm_model: str = Form(...), authorized: bool = Depends(require_admin)):
+    state.setdefault("admin", {})["llm_enabled"] = bool(llm_enabled)
+    state["admin"]["llm_model"] = str(llm_model)
+    return {"llm_enabled": state["admin"]["llm_enabled"], "llm_model": state["admin"]["llm_model"]}
 
 
 @app.post("/classify", response_model=ClassificationResult)
@@ -472,4 +539,3 @@ async def get_status():
     "metrics": state["metrics"],
     "investigations": state.get("investigations", [])
     }
-...existing code...
