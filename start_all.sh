@@ -3,8 +3,8 @@ set -e
 
 # Project root (script assumes it's run from project root)
 ROOT_DIR="$(pwd)"
-FRONTEND_DIR="$ROOT_DIR/sentinel-qos-dashboard"
-BACKEND_DIR="$ROOT_DIR"
+FRONTEND_DIR="$ROOT_DIR/frontend"
+BACKEND_DIR="$ROOT_DIR/backend"
 
 echo "Root: $ROOT_DIR"
 
@@ -23,7 +23,7 @@ pip install "fastapi[all]" uvicorn
 
 # Start backend with nohup
 echo "Starting backend (uvicorn) in background..."
-nohup uvicorn orchestrator:app --reload --host 0.0.0.0 --port 8000 > "$ROOT_DIR/backend.log" 2>&1 &
+nohup uvicorn backend.orchestrator:app --reload --host 0.0.0.0 --port 8000 > "$ROOT_DIR/backend.log" 2>&1 &
 
 # --- Frontend: npm install and start dev server ---
 if [ ! -d "$FRONTEND_DIR" ]; then
