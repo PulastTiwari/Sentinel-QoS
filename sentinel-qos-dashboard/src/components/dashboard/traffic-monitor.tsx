@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import type { Flow as IFlow, Policy as IPolicy, Suggestion as ISuggestion } from '../../../lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { api } from '../../../lib/api';
 import {
   Table,
   TableBody,
@@ -28,8 +29,8 @@ export function TrafficMonitor({ flows, policies, suggestions = [] }: TrafficMon
 
   async function approveSuggestion(id: string) {
     try {
-      await fetch(`/suggestions/${id}/approve`, { method: 'POST' });
-  setLocalSuggestions((s: ISuggestion[]) => s.filter((x: ISuggestion) => x.id !== id));
+      await api.approveSuggestion(id);
+      setLocalSuggestions((s: ISuggestion[]) => s.filter((x: ISuggestion) => x.id !== id));
     } catch (e) {
       console.error('approve failed', e);
     }
@@ -37,8 +38,8 @@ export function TrafficMonitor({ flows, policies, suggestions = [] }: TrafficMon
 
   async function denySuggestion(id: string) {
     try {
-      await fetch(`/suggestions/${id}/deny`, { method: 'POST' });
-  setLocalSuggestions((s: ISuggestion[]) => s.filter((x: ISuggestion) => x.id !== id));
+      await api.denySuggestion(id);
+      setLocalSuggestions((s: ISuggestion[]) => s.filter((x: ISuggestion) => x.id !== id));
     } catch (e) {
       console.error('deny failed', e);
     }
