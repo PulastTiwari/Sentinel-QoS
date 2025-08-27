@@ -29,6 +29,17 @@ venv/
 *.log
 backend.log
 frontend.log
+*.pkl
+training_data.csv
+.DS_Store
+.cursor/
+node_modules/
+**/node_modules/
+package-lock.json
+**/package-lock.json
+frontend/.next/
+.env
+frontend.log
 
 # OS
 .DS_Store
