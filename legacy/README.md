@@ -1,6 +1,7 @@
 This folder contains legacy project directories moved here during consolidation.
 
 Contents:
+
 - `samsung-ennovatex/`
 - `samsung-ennovatex-01/`
 
