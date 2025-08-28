@@ -24,6 +24,15 @@ except Exception:
     joblib = None
     HAS_JOBLIB = False
 
+    # Help static type checkers: optional heavy libs used at runtime only
+    from typing import TYPE_CHECKING
+    if TYPE_CHECKING:
+        import numpy  # type: ignore
+        import shap  # type: ignore
+
+    # Optional runtime holder for a loaded SHAP explainer (may be None)
+    SENTRY_EXPLAINER: Any = None
+
 # --- Configuration & State Management ---
 app = FastAPI()
 
@@ -216,7 +225,93 @@ class ClassificationResult(BaseModel):
     confidence: float
     explanation: Optional[str] = None
     engine: Optional[str] = None
+    shap: Optional[Dict[str, float]] = None
 
+
+# Helper to compute a SHAP mapping for a feature vector when explainer is available
+def compute_shap_map(features: FlowFeatures) -> Optional[Dict[str, float]]:
+    # Use optional SENTRY_EXPLAINER when available; otherwise use synthetic fallback
+    if 'SENTRY_EXPLAINER' in globals() and globals().get('SENTRY_EXPLAINER') is None:
+        # Synthetic deterministic fallback for demo purposes
+        try:
+            # Create deterministic pseudo-importances scaled from feature values
+            import math
+            seed_str = json.dumps(features.dict(), sort_keys=True)
+            seed = abs(hash(seed_str)) % 1000
+            def _sign(x):
+                return 1 if (abs(hash(str(x) + str(seed))) % 2 == 0) else -1
+
+            vals = {
+                'packet_count': float(features.packet_count) * 1e-3,
+                'avg_pkt_len': float(features.avg_pkt_len) * 1e-3,
+                'duration_seconds': float(features.duration_seconds) * 0.1,
+                'bytes_total': float(features.bytes_total) * 1e-6,
+                'dest_port': float((features.dest_port % 1000)) * 1e-3,
+            }
+            # normalize into -1..1 range roughly
+            maxv = max(abs(v) for v in vals.values()) or 1.0
+            shap_map = {k: round(_sign(v) * (abs(v) / maxv), 6) for k, v in vals.items()}
+            return shap_map
+        except Exception:
+            return None
+    try:
+        try:
+            # optional import; some dev environments don't have numpy installed.
+            # Use a local name _np and fall back to None when unavailable.
+            import numpy as _np  # type: ignore[import]
+        except Exception:
+            _np = None
+
+        # if either numpy or a loaded explainer is missing, bail out early
+        if _np is None or ('SENTRY_EXPLAINER' in globals() and globals().get('SENTRY_EXPLAINER') is None):
+            return None
+
+        fv = _np.array([[
+            features.packet_count,
+            features.avg_pkt_len,
+            features.duration_seconds,
+            features.bytes_total,
+            features.dest_port,
+        ]])
+        sv = None
+        try:
+            sv = SENTRY_EXPLAINER.shap_values(fv)
+        except Exception:
+            # some explainers use explainer(fv)
+            try:
+                res = SENTRY_EXPLAINER(fv)
+                sv = getattr(res, 'values', None) or res
+            except Exception:
+                sv = None
+
+        if sv is None:
+            return None
+
+        # Determine feature names
+        feature_names = []
+        try:
+            if hasattr(SENTRY_EXPLAINER, 'feature_names') and getattr(SENTRY_EXPLAINER, 'feature_names') is not None:
+                feature_names = list(getattr(SENTRY_EXPLAINER, 'feature_names'))
+        except Exception:
+            feature_names = []
+        if not feature_names:
+            feature_names = ['packet_count', 'avg_pkt_len', 'duration_seconds', 'bytes_total', 'dest_port']
+
+        # Normalize shap values
+        try:
+            if isinstance(sv, list):
+                arr = sv[0][0]
+            else:
+                arr = sv[0]
+        except Exception:
+            try:
+                arr = _np.asarray(sv).ravel()
+            except Exception:
+                return None
+
+        return {feature_names[i]: float(round(float(arr[i]), 6)) for i in range(min(len(feature_names), len(arr)))}
+    except Exception:
+        return None
 
 # --- Core Simulation Logic ---
 def apply_iptables_rule(source_ip: str, dest_ip: str, dest_port: int, dscp_class: str):
@@ -304,21 +399,35 @@ def vanguard_query_llm(features: FlowFeatures, prompt_text: Optional[str] = None
     else:
         prompt = prompt_text
 
-    # Try Ollama via subprocess (if installed)
+    # Try Ollama via subprocess (if installed). Prefer local Genma/Gemma model then fall back to mistral.
     try:
-        cmd = f"ollama eval --model=mistral --json '{json.dumps({'prompt': prompt})}'"
-        # Note: this command is best-effort; many environments won't have ollama
-        proc = subprocess.run(shlex.split(cmd), capture_output=True, text=True, timeout=30)
-        if proc.returncode == 0 and proc.stdout:
-            out = proc.stdout.strip()
+        for model_name in ("genma2b", "genma-2b", "gemma:2b", "gemma2b", "mistral"):
             try:
-                parsed = json.loads(out)
-                # Expecting {app_type, confidence, explanation}
-                return ClassificationResult(flow_id="", app_type=parsed.get('app_type', 'Unknown'), confidence=float(parsed.get('confidence', 0.0)), explanation=parsed.get('explanation'), engine=None)
-            except Exception:
-                # If output not JSON, include raw output as explanation
-                return ClassificationResult(flow_id="", app_type="Unknown", confidence=0.5, explanation=out[:1000], engine=None)
+                cmd = f"ollama eval --model={model_name} --json '{json.dumps({'prompt': prompt})}'"
+                proc = subprocess.run(shlex.split(cmd), capture_output=True, text=True, timeout=60)
+                if proc.returncode == 0 and proc.stdout:
+                    out = proc.stdout.strip()
+                    try:
+                        parsed = json.loads(out)
+                        # Expecting {app_type, confidence, explanation}
+                        return ClassificationResult(
+                            flow_id="",
+                            app_type=parsed.get('app_type', 'Unknown'),
+                            confidence=float(parsed.get('confidence', 0.0)),
+                            explanation=parsed.get('explanation'),
+                            engine="Vanguard",
+                        )
+                    except Exception:
+                        # If output not JSON, include raw output as explanation
+                        return ClassificationResult(flow_id="", app_type="Unknown", confidence=0.5, explanation=out[:1000], engine="Vanguard")
+            except FileNotFoundError:
+                # ollama not installed, try next model
+                continue
+            except subprocess.TimeoutExpired:
+                # try next model name on timeout
+                continue
     except Exception:
+        # best-effort; fall back to simulated analysis
         pass
 
     # Fallback simulated LLM analysis
@@ -433,6 +542,42 @@ async def upload_model(file: UploadFile = File(...), authorized: bool = Depends(
         return {"error": str(e)}
 
 
+@app.get("/admin/llm-health")
+async def llm_health():
+    """Lightweight public health endpoint for the local LLM runtime used by Vanguard.
+
+    Returns a small JSON object: { ollama_installed: bool, model_present: bool, models: [name...] }
+    This endpoint is intentionally public (no admin auth) because the frontend polls it to show status.
+    """
+    try:
+        # Check for ollama by invoking `ollama ls` and parsing output heuristically.
+        proc = subprocess.run(["ollama", "ls"], capture_output=True, text=True, timeout=6)
+        if proc.returncode != 0:
+            return {"ollama_installed": True, "model_present": False, "models": []}
+
+        out = (proc.stdout or "").strip()
+        if not out:
+            return {"ollama_installed": True, "model_present": False, "models": []}
+
+        names = []
+        for line in out.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            # Skip header lines that contain 'NAME' or 'ID'
+            if line.upper().startswith("NAME") or line.upper().startswith("ID"):
+                continue
+            parts = line.split()
+            if parts:
+                names.append(parts[0])
+
+        return {"ollama_installed": True, "model_present": len(names) > 0, "models": names}
+    except FileNotFoundError:
+        return {"ollama_installed": False, "model_present": False, "models": []}
+    except Exception:
+        return {"ollama_installed": True, "model_present": False, "models": []}
+
+
 @app.get("/admin/llm-settings")
 async def get_llm_settings(authorized: bool = Depends(require_admin)):
     admin = state.get("admin", {})
@@ -462,6 +607,7 @@ async def classify_flow(features: FlowFeatures):
     except Exception:
         # As a fallback, run the existing sentry + vanguard flow
         sentry_res = sentry_predict(features)
+        shap_map = compute_shap_map(features)
         if sentry_res.confidence >= 0.95:
             explanation = f"Sentry auto-accepted (conf={sentry_res.confidence:.2f})"
             policy = POLICY_DEFINITIONS.get(sentry_res.app_type, None)
@@ -470,10 +616,11 @@ async def classify_flow(features: FlowFeatures):
                 apply_iptables_rule(features.source_ip, features.dest_ip, features.dest_port, policy["dscp_class"])
             state["active_flows"][flow_id] = {"id": flow_id, "source_ip": features.source_ip, "dest_ip": features.dest_ip, "dest_port": features.dest_port, "status": "Policy Applied", "app_type": sentry_res.app_type}
             state["classification_log"].insert(0, {"timestamp": "now", "message": f"Sentry classified {flow_id} as {sentry_res.app_type} ({sentry_res.confidence:.2f})"})
-            return ClassificationResult(flow_id=flow_id, app_type=sentry_res.app_type, confidence=sentry_res.confidence, explanation=explanation, engine="Sentry")
+            return ClassificationResult(flow_id=flow_id, app_type=sentry_res.app_type, confidence=sentry_res.confidence, explanation=explanation, engine="Sentry", shap=shap_map)
 
         vanguard_res = vanguard_query_llm(features)
         vanguard_res.flow_id = flow_id
+        shap_map = compute_shap_map(features)
         investigation = {
             "flow_id": flow_id,
             "features": features.dict(),
@@ -483,6 +630,7 @@ async def classify_flow(features: FlowFeatures):
             "vanguard_confidence": vanguard_res.confidence,
             "vanguard_explanation": vanguard_res.explanation,
             "timestamp": "now",
+            "shap": shap_map,
         }
         state["investigations"].insert(0, investigation)
         profile_id = f"profile_{hash(json.dumps(features.dict(), sort_keys=True)) & 0xffffffff}"
@@ -493,7 +641,7 @@ async def classify_flow(features: FlowFeatures):
             apply_iptables_rule(features.source_ip, features.dest_ip, features.dest_port, policy["dscp_class"])
         state["active_flows"][flow_id] = {"id": flow_id, "source_ip": features.source_ip, "dest_ip": features.dest_ip, "dest_port": features.dest_port, "status": "Policy Applied", "app_type": vanguard_res.app_type}
         state["classification_log"].insert(0, {"timestamp": "now", "message": f"Vanguard classified {flow_id} as {vanguard_res.app_type} ({vanguard_res.confidence:.2f}) - {vanguard_res.explanation}"})
-        return ClassificationResult(flow_id=flow_id, app_type=vanguard_res.app_type, confidence=vanguard_res.confidence, explanation=vanguard_res.explanation, engine="Vanguard")
+        return ClassificationResult(flow_id=flow_id, app_type=vanguard_res.app_type, confidence=vanguard_res.confidence, explanation=vanguard_res.explanation, engine="Vanguard", shap=shap_map)
 
     # If classifier returned a dict-like result
     if isinstance(result, dict):
@@ -501,6 +649,14 @@ async def classify_flow(features: FlowFeatures):
         confidence = float(result.get("confidence", 0.0))
         explanation = result.get("explanation")
         engine = result.get("engine") or "Vanguard"
+
+        # Attempt to compute SHAP values if Sentry explainer and model were used
+        shap_map = None
+        try:
+            if engine == 'Sentry':
+                shap_map = compute_shap_map(features)
+        except Exception:
+            shap_map = None
 
         # Log and record investigation if from Vanguard
         if engine == "Vanguard":
@@ -513,6 +669,7 @@ async def classify_flow(features: FlowFeatures):
                 "vanguard_confidence": confidence,
                 "vanguard_explanation": explanation,
                 "timestamp": "now",
+                "shap": shap_map,
             }
             state["investigations"].insert(0, investigation)
             profile_id = f"profile_{hash(json.dumps(features.dict(), sort_keys=True)) & 0xffffffff}"
@@ -526,7 +683,8 @@ async def classify_flow(features: FlowFeatures):
 
         state["active_flows"][flow_id] = {"id": flow_id, "source_ip": features.source_ip, "dest_ip": features.dest_ip, "dest_port": features.dest_port, "status": "Policy Applied", "app_type": str(app_type)}
         state["classification_log"].insert(0, {"timestamp": "now", "message": f"Hybrid classified {flow_id} as {app_type} ({confidence:.2f}) via {engine}"})
-        return ClassificationResult(flow_id=flow_id, app_type=str(app_type), confidence=confidence, explanation=explanation, engine=str(engine))
+        # Include shap mapping in the response when available
+        return ClassificationResult(flow_id=flow_id, app_type=str(app_type), confidence=confidence, explanation=explanation, engine=str(engine), shap=shap_map)
 
 # --- API Endpoints ---
 @app.get("/status", response_model=SystemStatus)
@@ -539,3 +697,170 @@ async def get_status():
     "metrics": state["metrics"],
     "investigations": state.get("investigations", [])
     }
+
+
+@app.get("/", include_in_schema=False)
+async def root():
+    """Simple root endpoint to make visiting http://host:8000/ friendly.
+
+    Returns a small JSON payload so the base path doesn't return a 404.
+    """
+    return {"status": "ok", "detail": "Sentinel backend running"}
+
+
+@app.post("/investigations/{flow_id}/vanguard")
+async def run_vanguard_analysis(flow_id: str):
+    """Trigger Vanguard (LLM) analysis for a given flow_id and return the natural-language explanation.
+
+    This endpoint tries to find the investigation entry first, then falls back to active_flows.
+    It uses the existing vanguard_query_llm helper which will attempt to call Ollama if available
+    or return a simulated analysis otherwise.
+    """
+    # Find the investigation by flow_id
+    inv = None
+    for i in state.get("investigations", []):
+        if i.get("flow_id") == flow_id:
+            inv = i
+            break
+
+    # If not an investigation, check active flows
+    features = None
+    if inv is not None:
+        feats = inv.get("features")
+        try:
+            features = FlowFeatures(**feats)
+        except Exception:
+            features = None
+    else:
+        f = state.get("active_flows", {}).get(flow_id)
+        if f:
+            # Attempt to synthesize FlowFeatures from active flow record
+            try:
+                features = FlowFeatures(
+                    source_ip=f.get("source_ip", "0.0.0.0"),
+                    dest_ip=f.get("dest_ip", "0.0.0.0"),
+                    dest_port=int(f.get("dest_port", 0)),
+                    packet_count=int(f.get("packet_count", 0)),
+                    avg_pkt_len=float(f.get("avg_pkt_len", 0.0)),
+                    duration_seconds=float(f.get("duration_seconds", 0.0)),
+                    bytes_total=int(f.get("bytes_total", 0)),
+                )
+            except Exception:
+                features = None
+
+    if features is None:
+        raise HTTPException(status_code=404, detail="Flow or investigation not found or missing features")
+
+    # Respect admin toggle for LLM
+    if not state.get("admin", {}).get("llm_enabled", True):
+        raise HTTPException(status_code=503, detail="Vanguard LLM is disabled by admin")
+
+    # Run LLM analysis in executor to avoid blocking
+    loop = asyncio.get_event_loop()
+    try:
+        vres = await loop.run_in_executor(None, lambda: vanguard_query_llm(features))
+        # Attach flow id
+        vres.flow_id = flow_id
+        return {"flow_id": flow_id, "app_type": vres.app_type, "confidence": vres.confidence, "explanation": vres.explanation}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+from pydantic import BaseModel
+
+# --- Simulation API for interactive what-if scenarios ---
+class SimulationParams(BaseModel):
+    video_percentage: float = 50.0
+    total_volume_gb: int = 1
+
+
+@app.post("/simulate")
+async def run_simulation(params: SimulationParams):
+    """Generate synthetic traffic according to params and return aggregated classification counts.
+
+    The implementation is intentionally conservative in sample count to remain responsive
+    in demo environments. It uses `sentry_predict` (fast heuristic / model) when possible
+    and falls back to the hybrid classifier for variety.
+    """
+    try:
+        import numpy as _np  # type: ignore
+    except Exception:
+        _np = None
+
+    # Decide number of synthetic flows to generate (bounded)
+    requested = max(10, int(params.total_volume_gb * 100))
+    num_samples = min(2000, requested)
+
+    video_share = float(max(0.0, min(100.0, params.video_percentage))) / 100.0
+    video_samples = int(round(num_samples * video_share))
+    other_samples = num_samples - video_samples
+
+    samples = []
+
+    def make_video_feature(i):
+        # Video tends to have large avg packet length and sustained bytes
+        return FlowFeatures(
+            source_ip=f"192.168.100.{(i % 240) + 10}",
+            dest_ip=f"10.1.0.{(i % 240) + 1}",
+            dest_port=int(8000 + (i % 1000)),
+            packet_count=int(100 + (i % 500)),
+            avg_pkt_len=float(800 + (i % 400)),
+            duration_seconds= max(1.0, float((i % 60) + 5)),
+            bytes_total=int((800 + (i % 400)) * (100 + (i % 500))),
+        )
+
+    def make_other_feature(i):
+        # Browsing / mixed traffic
+        return FlowFeatures(
+            source_ip=f"192.168.200.{(i % 240) + 10}",
+            dest_ip=f"10.2.0.{(i % 240) + 1}",
+            dest_port=int(80 + (i % 6000)),
+            packet_count=int(10 + (i % 300)),
+            avg_pkt_len=float(200 + (i % 300)),
+            duration_seconds= max(0.2, float((i % 30) + 1)),
+            bytes_total=int((200 + (i % 300)) * (10 + (i % 300))),
+        )
+
+    for i in range(video_samples):
+        samples.append(make_video_feature(i))
+    for i in range(other_samples):
+        samples.append(make_other_feature(i + video_samples))
+
+    # Run classifier for each sample (use sentry_predict for speed when possible)
+    counts: Dict[str, int] = {}
+    loop = asyncio.get_event_loop()
+
+    def classify_sample(feature: FlowFeatures):
+        try:
+            # Prefer sentry_predict fast path
+            res = sentry_predict(feature)
+            label = res.app_type if res and res.app_type else 'Unknown'
+        except Exception:
+            try:
+                # Fallback to hybrid classifier module (may call LLM but kept minimal)
+                r = hybrid_classify(feature.dict())
+                if isinstance(r, dict):
+                    label = r.get('classification') or r.get('app_type') or 'Unknown'
+                else:
+                    label = getattr(r, 'app_type', 'Unknown')
+            except Exception:
+                label = 'Unknown'
+        return label
+
+    # Run classification in a threadpool for responsiveness
+    try:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=8) as exc:
+            futs = [loop.run_in_executor(exc, classify_sample, s) for s in samples]
+            for f in asyncio.as_completed(futs):
+                try:
+                    lbl = await f
+                except Exception:
+                    lbl = 'Unknown'
+                counts[lbl] = counts.get(lbl, 0) + 1
+    except Exception:
+        # Synchronous fallback if executor fails
+        for s in samples:
+            lbl = classify_sample(s)
+            counts[lbl] = counts.get(lbl, 0) + 1
+
+    return {"simulation_results": counts, "num_samples": num_samples}

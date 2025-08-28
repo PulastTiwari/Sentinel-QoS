@@ -2,6 +2,7 @@
 
 import type { Investigation } from '../../../lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ShapExplanation from '@/components/ui/ShapExplanation';
 
 interface AIInvestigationsProps {
   investigations: Investigation[];
@@ -32,6 +33,8 @@ export function AIInvestigations({ investigations }: AIInvestigationsProps) {
                 }`}>
                   {investigation.status}
                 </span>
+                {/* SHAP explanation */}
+                {investigation.shap && <ShapExplanation shap={investigation.shap} />}
               </div>
             ))
           )}

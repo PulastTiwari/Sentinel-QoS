@@ -22,7 +22,7 @@ export function AIStatusIndicator({
   return (
     <Card className={cn("", className)}>
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-display">AI Classification Status</CardTitle>
+        <CardTitle className="text-lg font-display">Classification Status</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
@@ -38,7 +38,7 @@ export function AIStatusIndicator({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className={cn("w-2 h-2 rounded-full", vanguardActive ? "bg-primary" : "bg-muted")} />
-            <span className="text-sm font-medium">Vanguard (LLM)</span>
+            <span className="text-sm font-medium">Vanguard</span>
           </div>
           <Badge variant={vanguardActive ? "default" : "secondary"} className="bg-primary text-primary-foreground">
             {vanguardActive ? "ACTIVE" : "STANDBY"}

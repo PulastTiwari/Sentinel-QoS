@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -36,7 +37,9 @@ export function Sidebar(): React.ReactElement {
           {!collapsed && <span className="text-sm text-sidebar-foreground/60">AI Orchestrator</span>}
         </div>
 
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           type="button"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-pressed={collapsed}
@@ -46,7 +49,7 @@ export function Sidebar(): React.ReactElement {
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" className={cn("w-5 h-5 transform transition-transform", collapsed ? "rotate-180" : "rotate-0")}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 9l6 6 6-6" />
           </svg>
-        </button>
+        </Button>
       </div>
 
       <nav role="navigation" aria-label="Main" className="flex-1 px-1 py-4">

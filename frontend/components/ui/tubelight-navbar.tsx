@@ -4,7 +4,9 @@ import React, { useEffect, useState } from "react"
 import { motion, useReducedMotion, Variants } from "framer-motion"
 import Link from "next/link"
 import * as Icons from "lucide-react"
+import { Button } from '@/components/ui/button'
 import { cn } from "@/lib/utils"
+// LLM health indicator removed from navbar
 import { Menu } from "lucide-react"
 
 interface NavItem {
@@ -61,13 +63,15 @@ export function NavBar({ items, className }: NavBarProps) {
     return (
       <div className={cn("fixed left-1/2 -translate-x-1/2 z-50", className)} style={{ bottom: 18 }}>
         {!expandedMobile ? (
-          <button
+          <Button
             aria-label="Open navigation"
             onClick={() => setExpandedMobile(true)}
             className="w-12 h-12 rounded-full bg-background/40 backdrop-blur-md border border-border flex items-center justify-center shadow-md"
+            size="icon"
+            variant="ghost"
           >
             <Menu size={18} />
-          </button>
+          </Button>
         ) : (
           <>
             <div
@@ -90,16 +94,17 @@ export function NavBar({ items, className }: NavBarProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.06 * idx }}
                   >
-                    <Link
-                      href={item.url}
-                      onClick={() => {
-                        setActiveTab(item.name)
-                        setExpandedMobile(false)
-                      }}
-                      className={cn("p-2 rounded-full text-foreground/80 hover:text-primary")}
-                    >
-                      {Icon ? <Icon size={18} /> : <Icons.Circle size={18} />}
-                    </Link>
+                            <Link
+                              href={item.url}
+                              onClick={() => {
+                                setActiveTab(item.name)
+                                setExpandedMobile(false)
+                              }}
+                            >
+                              <Button className={cn("p-2 rounded-full text-foreground/80 hover:text-primary")} size="icon" variant="ghost">
+                                {Icon ? <Icon size={18} /> : <Icons.Circle size={18} />}
+                              </Button>
+                            </Link>
                   </motion.span>
                 )
               })}
@@ -133,6 +138,11 @@ export function NavBar({ items, className }: NavBarProps) {
         {...entrance}
         className="flex items-center gap-3 bg-white/5 border border-white/10 backdrop-blur-xl py-1 px-2 sm:py-1 sm:px-3 rounded-full shadow-lg"
       >
+  {/* LLM status removed from navbar to avoid calling /admin/llm-health */}
+        {/* Splash cursor toggle */}
+        <div className="flex items-center mr-2">
+          <CursorToggle />
+        </div>
         {items.map((item) => {
           const Icon = item.icon ? (Icons as any)[item.icon] : undefined
           const isActive = activeTab === item.name
@@ -180,6 +190,51 @@ export function NavBar({ items, className }: NavBarProps) {
       </motion.div>
     </motion.nav>
   )
+}
+
+function CursorToggle() {
+  const [enabled, setEnabled] = useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem("splashCursor.enabled");
+      return v === null ? true : v === "1";
+    } catch (e) {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("splashCursor.enabled", enabled ? "1" : "0");
+    } catch (e) {
+      // ignore
+    }
+  }, [enabled]);
+
+  return (
+    <Button
+      aria-label={enabled ? "Disable splash cursor" : "Enable splash cursor"}
+      onClick={() => {
+        const newVal = !enabled;
+        setEnabled(newVal);
+        try {
+          localStorage.setItem("splashCursor.enabled", newVal ? "1" : "0");
+        } catch (e) {}
+        try {
+          window.dispatchEvent(new CustomEvent("splashCursor:change", { detail: { enabled: newVal } }));
+        } catch (e) {}
+      }}
+      className="w-10 h-10 rounded-full bg-background/30 flex items-center justify-center text-slate-200/90 hover:bg-background/40"
+      title={enabled ? "Disable fancy cursor" : "Enable fancy cursor"}
+      size="icon"
+      variant="ghost"
+    >
+      {enabled ? (
+        <Icons.Eye size={16} />
+      ) : (
+        <Icons.EyeOff size={16} />
+      )}
+    </Button>
+  );
 }
 
 export default NavBar

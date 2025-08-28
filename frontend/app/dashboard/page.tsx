@@ -7,6 +7,9 @@ import { LiveTrafficOverview } from "@/components/dashboard/live-traffic-overvie
 // Sidebar removed — navigation is now site-wide via NavBar and top-left logo
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { useToast } from '@/hooks/use-toast'
 
 export default function DashboardPage() {
   const { data, loading, error } = useLiveStatus()
@@ -39,12 +42,31 @@ export default function DashboardPage() {
               <h1 className="text-3xl font-display font-bold text-balance">AI Network Orchestrator</h1>
               <p className="text-muted-foreground mt-1">Real-time traffic classification and QoS policy management</p>
             </div>
-            {loading && (
-              <div className="flex items-center space-x-2 text-muted-foreground">
-                <LoadingSpinner size="sm" />
-                <span className="text-sm">Syncing...</span>
+            <div className="flex items-center space-x-3">
+              <Link href="/traffic/simulation" onClick={() => { /* placeholder; replaced by inner button handler */ }}>
+                <Button
+                  onClick={() => {
+                    // analytics hook (gtm/dataLayer) and toast
+                    try {
+                      // push to dataLayer if present for analytics
+                      ;(window as any).dataLayer?.push?.({ event: 'simulation_open', videoPct: 50 })
+                    } catch (e) {}
+                  }}
+                  className="inline-flex items-center"
+                >
+                  Run Simulation
+                </Button>
+              </Link>
+              <div className="text-xs text-muted-foreground">
+                Quick run: simulate traffic mixes and see classifier distribution. Sample size is bounded for demo.
               </div>
-            )}
+              {loading && (
+                <div className="flex items-center space-x-2 text-muted-foreground">
+                  <LoadingSpinner size="sm" />
+                  <span className="text-sm">Syncing...</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Metrics Grid */}

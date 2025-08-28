@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button'
 import type { Flow as IFlow, Policy as IPolicy, Suggestion as ISuggestion } from '../../../lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { api } from '../../../lib/api';
@@ -65,8 +66,8 @@ export function TrafficMonitor({ flows, policies, suggestions = [] }: TrafficMon
                     <div className="text-xs text-gray-500">{s.rationale}</div>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => approveSuggestion(s.id)} className="px-2 py-1 rounded bg-green-500 text-white text-xs">Approve</button>
-                    <button onClick={() => denySuggestion(s.id)} className="px-2 py-1 rounded bg-red-200 text-red-700 text-xs">Deny</button>
+                    <Button onClick={() => approveSuggestion(s.id)} className="px-2 py-1 rounded bg-green-500 text-white text-xs">Approve</Button>
+                    <Button onClick={() => denySuggestion(s.id)} className="px-2 py-1 rounded bg-red-200 text-red-700 text-xs">Deny</Button>
                   </div>
                 </div>
               ))}

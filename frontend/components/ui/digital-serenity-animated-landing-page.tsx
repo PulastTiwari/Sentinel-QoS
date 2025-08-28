@@ -121,7 +121,7 @@ const DigitalSerenity = () => {
   return (
     <>
       <style>{pageStyles}</style>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-slate-100 font-primary overflow-hidden relative">
+  <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-slate-100 font-primary overflow-hidden relative landing-font">
         <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
             <pattern id="gridReactDarkResponsive" width="60" height="60" patternUnits="userSpaceOnUse">
@@ -160,7 +160,7 @@ const DigitalSerenity = () => {
         <div className="floating-element-animate" style={{ top: '40%', left: '10%', animationDelay: '1.5s' }}></div>
         <div className="floating-element-animate" style={{ top: '75%', left: '90%', animationDelay: '2s' }}></div>
 
-        <div className="relative z-10 min-h-screen flex flex-col justify-between items-center px-6 py-10 sm:px-8 sm:py-12 md:px-16 md:py-20">
+  <div className="relative z-10 min-h-screen flex flex-col justify-center items-center px-6 py-10 sm:px-8 sm:py-12 md:px-16 md:py-20">
           <div className="text-center">
             <h2 className="text-xs sm:text-sm font-mono font-light text-slate-300 uppercase tracking-[0.2em] opacity-80">
               <span className="word-animate" data-delay="0">Built for Samsung EnnovateX</span>
@@ -175,35 +175,22 @@ const DigitalSerenity = () => {
                 <span className="word-animate" data-delay="700">Sentinel QOS</span>
               </div>
               <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-thin text-slate-300 leading-relaxed tracking-wide">
-                <span className="word-animate" data-delay="1400">where</span>
-                <span className="word-animate" data-delay="1550">peace</span>
-                <span className="word-animate" data-delay="1700">resides</span>
+                <span className="word-animate" data-delay="1400">Continuously</span>
+                <span className="word-animate" data-delay="1550">optimize</span>
+                <span className="word-animate" data-delay="1700">bandwidth</span>
                 <span className="word-animate" data-delay="1850">and</span>
-                <span className="word-animate" data-delay="2000">clarity</span>
-                <span className="word-animate" data-delay="2150">awakens</span>
-                <span className="word-animate" data-delay="2300">within</span>
-                <span className="word-animate" data-delay="2450">the</span>
-                <span className="word-animate" data-delay="2600">soul.</span>
+                <span className="word-animate" data-delay="2000">latency</span>
+                <span className="word-animate" data-delay="2150">with</span>
+                <span className="word-animate" data-delay="2300">adaptive</span>
+                <span className="word-animate" data-delay="2450">QoS</span>
+                <span className="word-animate" data-delay="2600">guidance.</span>
               </div>
             </h1>
             <div className="absolute -left-6 sm:-left-8 top-1/2 transform -translate-y-1/2 w-3 sm:w-4 h-px bg-slate-300 opacity-0" style={{ animation: 'word-appear 1s ease-out forwards', animationDelay: '3.2s' }}></div>
             <div className="absolute -right-6 sm:-right-8 top-1/2 transform -translate-y-1/2 w-3 sm:w-4 h-px bg-slate-300 opacity-0" style={{ animation: 'word-appear 1s ease-out forwards', animationDelay: '3.4s' }}></div>
           </div>
 
-          <div className="text-center">
-            <div className="mb-4 w-12 sm:w-16 h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent opacity-30 mx-auto"></div>
-            <h2 className="text-xs sm:text-sm font-mono font-light text-slate-300 uppercase tracking-[0.2em] opacity-80">
-              <span className="word-animate" data-delay="3000">Observe,</span>
-              <span className="word-animate" data-delay="3200">accept,</span>
-              <span className="word-animate" data-delay="3400">let</span>
-              <span className="word-animate" data-delay="3550">go.</span>
-            </h2>
-            <div className="mt-6 flex justify-center space-x-4 opacity-0" style={{ animation: 'word-appear 1s ease-out forwards', animationDelay: '4.2s' }}>
-              <div className="w-1 h-1 bg-slate-300 rounded-full opacity-40"></div>
-              <div className="w-1 h-1 bg-slate-300 rounded-full opacity-60"></div>
-              <div className="w-1 h-1 bg-slate-300 rounded-full opacity-40"></div>
-            </div>
-          </div>
+          {/* Observe / accept / let go removed per request */}
         </div>
 
         <div 

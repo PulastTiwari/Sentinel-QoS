@@ -3,8 +3,10 @@ import random
 import subprocess
 import sys
 import platform
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Dict, Optional, Any
 import json
@@ -279,21 +281,40 @@ def vanguard_query_llm(features: FlowFeatures, prompt_text: Optional[str] = None
     else:
         prompt = prompt_text
 
-    # Try Ollama via subprocess (if installed)
+    # Try Ollama via subprocess (if installed). Use environment variable to select model.
     try:
-        cmd = f"ollama eval --model=mistral --json '{json.dumps({'prompt': prompt})}'"
-        # Note: this command is best-effort; many environments won't have ollama
-        proc = subprocess.run(shlex.split(cmd), capture_output=True, text=True, timeout=30)
+        ollama_model = os.environ.get("OLLAMA_MODEL", "mistral")
+        payload = {"prompt": prompt}
+        # Pass arguments as a list to avoid shell quoting/escaping issues
+        proc = subprocess.run([
+            "ollama",
+            "eval",
+            "--model",
+            ollama_model,
+            "--json",
+            json.dumps(payload),
+        ], capture_output=True, text=True, timeout=30)
+
         if proc.returncode == 0 and proc.stdout:
             out = proc.stdout.strip()
             try:
                 parsed = json.loads(out)
                 # Expecting {app_type, confidence, explanation}
-                return ClassificationResult(flow_id="", app_type=parsed.get('app_type', 'Unknown'), confidence=float(parsed.get('confidence', 0.0)), explanation=parsed.get('explanation'), engine=None)
+                return ClassificationResult(
+                    flow_id="",
+                    app_type=parsed.get("app_type", "Unknown"),
+                    confidence=float(parsed.get("confidence", 0.0)),
+                    explanation=parsed.get("explanation"),
+                    engine="Vanguard",
+                )
             except Exception:
                 # If output not JSON, include raw output as explanation
-                return ClassificationResult(flow_id="", app_type="Unknown", confidence=0.5, explanation=out[:1000], engine=None)
+                return ClassificationResult(flow_id="", app_type="Unknown", confidence=0.5, explanation=out[:1000], engine="Vanguard")
+    except FileNotFoundError:
+        # ollama not installed or not on PATH
+        pass
     except Exception:
+        # Any other error (timeout, permission) -> fall back to simulated LLM
         pass
 
     # Fallback simulated LLM analysis
@@ -471,4 +492,105 @@ async def get_status():
     "active_policies": list(state["policy_map"].values()),
     "metrics": state["metrics"],
     "investigations": state.get("investigations", [])
+    }
+
+
+# Server-Sent Events endpoint to stream Vanguard analysis progress
+@app.get("/investigations/{flow_id}/vanguard/stream")
+async def vanguard_stream(flow_id: str):
+    async def event_generator():
+        # Try to locate existing investigation features
+        features_obj = None
+        for inv in state.get("investigations", []):
+            if inv.get("flow_id") == flow_id:
+                features_obj = inv.get("features")
+                break
+
+        # Fallback to active flow data if investigation missing
+        if not features_obj:
+            af = state.get("active_flows", {}).get(flow_id)
+            if af:
+                # Create minimal features when we have only flow record
+                features_obj = {
+                    "source_ip": af.get("source_ip", "0.0.0.0"),
+                    "dest_ip": af.get("dest_ip", "0.0.0.0"),
+                    "dest_port": int(af.get("dest_port", 0)),
+                    "packet_count": 10,
+                    "avg_pkt_len": 250.0,
+                    "duration_seconds": 1.0,
+                    "bytes_total": 1000,
+                }
+
+        # Final fallback synthetic features
+        if not features_obj:
+            features_obj = {
+                "source_ip": "0.0.0.0",
+                "dest_ip": "0.0.0.0",
+                "dest_port": 0,
+                "packet_count": 5,
+                "avg_pkt_len": 200.0,
+                "duration_seconds": 0.5,
+                "bytes_total": 500,
+            }
+
+        # Emit started event
+        yield f"data: {json.dumps({'event': 'started', 'message': 'Starting Vanguard analysis'})}\n\n"
+        await asyncio.sleep(0.1)
+
+        # Emit running event
+        yield f"data: {json.dumps({'event': 'running', 'message': 'Querying LLM (Vanguard) - this may take a few seconds'})}\n\n"
+
+        # Run the potentially-blocking LLM call in an executor
+        loop = asyncio.get_event_loop()
+        try:
+            features = FlowFeatures(**features_obj)
+            vres = await loop.run_in_executor(None, lambda: vanguard_query_llm(features))
+            # Save investigation record
+            investigation = {
+                'flow_id': flow_id,
+                'features': features.dict(),
+                'sentry_prediction': None,
+                'sentry_confidence': None,
+                'vanguard_prediction': vres.app_type,
+                'vanguard_confidence': vres.confidence,
+                'vanguard_explanation': vres.explanation,
+                'timestamp': 'now',
+            }
+            state.setdefault('investigations', []).insert(0, investigation)
+            # Emit final result
+            yield f"data: {json.dumps({'event': 'result', 'app_type': vres.app_type, 'confidence': vres.confidence, 'explanation': vres.explanation})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'event': 'error', 'message': str(e)})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+
+@app.get('/admin/llm-health')
+async def llm_health():
+    """Return simple health info about the LLM runtime and configured model."""
+    ollama_path = None
+    try:
+        # Check if ollama is available
+        proc = subprocess.run(['which', 'ollama'], capture_output=True, text=True, timeout=2)
+        if proc.returncode == 0:
+            ollama_path = proc.stdout.strip()
+    except Exception:
+        ollama_path = None
+
+    model = os.environ.get('OLLAMA_MODEL', None)
+    model_present = False
+    try:
+        if ollama_path and model:
+            proc = subprocess.run(['ollama', 'ls'], capture_output=True, text=True, timeout=3)
+            if proc.returncode == 0 and model in proc.stdout:
+                model_present = True
+    except Exception:
+        model_present = False
+
+    return {
+        'ollama_installed': bool(ollama_path),
+        'ollama_path': ollama_path,
+        'model_configured': bool(model),
+        'model_name': model,
+        'model_present': model_present,
     }

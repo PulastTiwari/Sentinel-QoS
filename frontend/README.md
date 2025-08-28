@@ -7,7 +7,7 @@ A cutting-edge AI-driven Quality of Service (QoS) orchestrator that intelligentl
 ### AI-Powered Classification
 
 - **Sentry Engine**: Fast LightGBM-based classification for common traffic patterns
-- **Vanguard Engine**: LLM-powered analysis for complex flows and detailed explanations
+  -- **Vanguard Engine**: analysis for complex flows and detailed explanations
 - **Hybrid Architecture**: Optimizes both speed and accuracy for real-time network management
 
 ### Real-Time Monitoring
@@ -106,7 +106,7 @@ The backend should be accessible at `http://localhost:8000`
 ### Key Components
 
 - **Live Traffic Table** - Real-time sortable flow monitoring
-- **AI Status Indicators** - Sentry/Vanguard engine health monitoring
+  -- **Status Indicators** - Sentry/Vanguard engine health monitoring
 - **Suggestion Cards** - Interactive policy approval/denial interface
 - **Metrics Cards** - QoS priority visualization with color coding
 - **Classification Log** - Real-time AI decision tracking with explanations

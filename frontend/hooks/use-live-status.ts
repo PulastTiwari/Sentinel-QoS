@@ -45,7 +45,7 @@ const mockStatusData: StatusResponse = {
     {
       timestamp: new Date(Date.now() - 45000).toISOString(),
       message: "Complex traffic pattern analyzed (confidence: 97.8%)",
-      explanation: "LLM analysis identified gaming traffic with low latency requirements",
+      explanation: "Analysis identified gaming traffic with low latency requirements",
       engine: "Vanguard",
     },
     {

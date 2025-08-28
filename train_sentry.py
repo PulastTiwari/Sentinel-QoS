@@ -9,30 +9,46 @@ The script saves a payload with keys: model, label_encoder, feature_columns.
 import argparse
 import sys
 import os
+from typing import TYPE_CHECKING
 
 missing = []
 try:
-    import joblib
+    import joblib  # type: ignore
 except Exception:
     missing.append('joblib')
 try:
-    import pandas as pd
+    import pandas as pd  # type: ignore
 except Exception:
     missing.append('pandas')
 try:
-    import numpy as np
+    import numpy as np  # type: ignore
 except Exception:
     missing.append('numpy')
 try:
-    from sklearn.model_selection import train_test_split
-    from sklearn.preprocessing import LabelEncoder
-    from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+    from sklearn.model_selection import train_test_split  # type: ignore
+    from sklearn.preprocessing import LabelEncoder  # type: ignore
+    from sklearn.metrics import accuracy_score, classification_report, confusion_matrix  # type: ignore
 except Exception:
     missing.append('scikit-learn')
 try:
-    from lightgbm import LGBMClassifier
+    from lightgbm import LGBMClassifier  # type: ignore
 except Exception:
     missing.append('lightgbm')
+
+# Help the static type checker (Pylance) by providing imports only for TYPE_CHECKING.
+# These imports are only used by editors for intellisense and will not affect runtime.
+if TYPE_CHECKING:
+    # type: ignore
+    import joblib  # type: ignore
+    import pandas as pd  # type: ignore
+    import numpy as np  # type: ignore
+    from sklearn.model_selection import train_test_split  # type: ignore
+    from sklearn.preprocessing import LabelEncoder  # type: ignore
+    from sklearn.metrics import accuracy_score, classification_report, confusion_matrix  # type: ignore
+    from lightgbm import LGBMClassifier  # type: ignore
+    import seaborn as sns  # type: ignore
+    import matplotlib.pyplot as plt  # type: ignore
+    import shap  # type: ignore
 
 if missing:
     print('ERROR: missing required Python packages: ' + ', '.join(missing))
@@ -96,8 +112,8 @@ def train_sentry_model(csv_path: str = 'training_data.csv', out_path: str = 'sen
 
         if do_plot:
             try:
-                import seaborn as sns
-                import matplotlib.pyplot as plt
+                import seaborn as sns  # type: ignore
+                import matplotlib.pyplot as plt  # type: ignore
                 cm = confusion_matrix(y_test_np, y_pred_np)
                 plt.figure(figsize=(10, 8))
                 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=list(le.classes_), yticklabels=list(le.classes_))
@@ -126,6 +142,19 @@ def train_sentry_model(csv_path: str = 'training_data.csv', out_path: str = 'sen
         print("Saved label encoder to 'label_encoder.pkl'")
     except Exception:
         pass
+
+    # Optional: create and save a SHAP explainer for local explainability (demo only)
+    try:
+        import shap  # type: ignore
+        try:
+            explainer = shap.TreeExplainer(clf)
+            joblib.dump(explainer, 'sentry_explainer.pkl')
+            print("Saved SHAP explainer to 'sentry_explainer.pkl'")
+        except Exception as e:
+            print('Warning: failed to create/save SHAP explainer:', e)
+    except Exception:
+        # shap not installed; skip silently
+        print('SHAP not available; skipping explainer creation (pip install shap to enable)')
 
 
 def main():

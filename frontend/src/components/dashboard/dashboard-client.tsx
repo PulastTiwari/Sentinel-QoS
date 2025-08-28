@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import type { StatusResponse as ISystemStatus } from '../../../lib/types';
 import { TrafficMonitor } from './traffic-monitor';
 import { ClassificationLog } from './classification-log';
@@ -58,8 +59,23 @@ export function DashboardClient() {
   return (
     <div>
       <div className="flex gap-2 mb-4">
-        <button className={`px-3 py-1 rounded ${activeTab === 'log' ? 'bg-sky-500 text-white' : 'bg-gray-100'}`} onClick={() => setActiveTab('log')}>Classification Log</button>
-        <button className={`px-3 py-1 rounded ${activeTab === 'investigations' ? 'bg-sky-500 text-white' : 'bg-gray-100'}`} onClick={() => setActiveTab('investigations')}>AI Investigations</button>
+        <Button
+          size="sm"
+          variant={activeTab === 'log' ? 'default' : 'ghost'}
+          className={`${activeTab === 'log' ? 'bg-sky-500 text-white' : 'bg-gray-100'}`}
+          onClick={() => setActiveTab('log')}
+        >
+          Classification Log
+        </Button>
+
+        <Button
+          size="sm"
+          variant={activeTab === 'investigations' ? 'default' : 'ghost'}
+          className={`${activeTab === 'investigations' ? 'bg-sky-500 text-white' : 'bg-gray-100'}`}
+          onClick={() => setActiveTab('investigations')}
+        >
+          AI Investigations
+        </Button>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

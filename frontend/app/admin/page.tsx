@@ -3,24 +3,21 @@
 import React, { useEffect, useState } from "react"
 import { api, setAdminAuth } from "@/lib/api"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Button } from '@/components/ui/button'
 import { useToast } from "@/hooks/use-toast"
 
 export default function AdminPage() {
   const [simEnabled, setSimEnabled] = useState<boolean | null>(null)
   const [uploading, setUploading] = useState(false)
-  const [llm, setLlm] = useState({ llm_enabled: true, llm_model: "mistral" })
+  // LLM-related settings removed
   const [user, setUser] = useState("")
   const [pass, setPass] = useState("")
   const t = useToast()
 
   useEffect(() => {
-    // fetch current settings
-    api
-      .getLlmSettings()
-      .then((res: any) => setLlm({ llm_enabled: Boolean(res.llm_enabled), llm_model: String(res.llm_model || "mistral") }))
-      .catch(() => {})
-    // infer simulate flag from global state endpoint via status — fallback true
+  // infer simulate flag from global state endpoint via status — fallback true
     api.fetchStatus().then(() => setSimEnabled(true)).catch(() => setSimEnabled(false))
+    
   }, [])
 
   async function toggleSim() {
@@ -53,13 +50,7 @@ export default function AdminPage() {
   }
 
   async function saveLlm() {
-    try {
-      const res = await api.setLlmSettings(llm.llm_enabled, llm.llm_model)
-      setLlm(res)
-  t.toast({ title: "LLM settings saved", description: `${res.llm_model} — ${res.llm_enabled ? "enabled" : "disabled"}` })
-    } catch (e) {
-  t.toast({ title: "LLM save failed", description: String(e) })
-    }
+  // removed
   }
 
   return (
@@ -73,37 +64,26 @@ export default function AdminPage() {
           {simEnabled === null ? (
             <LoadingSpinner />
           ) : (
-            <button
-              className={`px-4 py-2 rounded ${simEnabled ? "bg-green-600 text-white" : "bg-muted"}`}
+            <Button
               onClick={toggleSim}
+              className={`px-4 py-2 rounded ${simEnabled ? "bg-green-600 text-white" : "bg-muted"}`}
             >
               {simEnabled ? "Disable Simulation" : "Enable Simulation"}
-            </button>
+            </Button>
           )}
         </div>
 
         <div className="bg-card rounded-xl border p-4">
           <h3 className="font-medium mb-2">Upload Sentry Model</h3>
           <p className="text-sm text-muted-foreground mb-3">Upload a joblib/.pkl payload produced by <code>train_sentry.py</code>.</p>
-          <input type="file" accept=".pkl,.joblib" onChange={onFile} />
+            <input type="file" accept=".pkl,.joblib" onChange={onFile} />
           <div className="mt-3">
-            <button className="px-4 py-2 rounded bg-primary text-white" onClick={() => {}}>Upload</button>
+            <Button className="px-4 py-2 rounded bg-primary text-white" onClick={() => {}}>Upload</Button>
             {uploading && <span className="ml-3"><LoadingSpinner size="sm" /></span>}
           </div>
         </div>
 
-        <div className="bg-card rounded-xl border p-4 md:col-span-2">
-          <h3 className="font-medium mb-2">Vanguard LLM Settings</h3>
-          <p className="text-sm text-muted-foreground mb-3">Toggle LLM fallback and set model name used by the backend's Ollama call.</p>
-          <div className="flex items-center space-x-3">
-            <label className="flex items-center space-x-2">
-              <input type="checkbox" checked={llm.llm_enabled} onChange={(e) => setLlm({ ...llm, llm_enabled: e.target.checked })} />
-              <span>LLM enabled</span>
-            </label>
-            <input className="border rounded px-2 py-1" value={llm.llm_model} onChange={(e) => setLlm({ ...llm, llm_model: e.target.value })} />
-            <button className="px-3 py-1 rounded bg-primary text-white" onClick={saveLlm}>Save</button>
-          </div>
-        </div>
+  {/* LLM settings removed per cleanup request */}
       </div>
 
       <div className="mt-6 bg-card rounded-xl border p-4">
@@ -111,7 +91,7 @@ export default function AdminPage() {
         <div className="flex items-center space-x-3">
           <input className="border rounded px-2 py-1" placeholder="username" value={user} onChange={(e) => setUser(e.target.value)} />
           <input className="border rounded px-2 py-1" placeholder="password" type="password" value={pass} onChange={(e) => setPass(e.target.value)} />
-          <button
+          <Button
             className="px-3 py-1 rounded bg-primary text-white"
             onClick={() => {
               setAdminAuth(user, pass)
@@ -119,7 +99,7 @@ export default function AdminPage() {
             }}
           >
             Set Credentials
-          </button>
+          </Button>
         </div>
       </div>
     </div>

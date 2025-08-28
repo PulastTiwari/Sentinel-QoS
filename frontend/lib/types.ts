@@ -78,6 +78,7 @@ export interface Investigation {
   timestamp: string
   details: string
   status: string
+  shap?: Record<string, number>
 }
 
 export interface StatusResponse {

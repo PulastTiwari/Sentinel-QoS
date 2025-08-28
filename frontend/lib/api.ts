@@ -57,6 +57,19 @@ export const api = {
     })
   },
 
+  async runSimulation(video_percentage: number, total_volume_gb: number): Promise<any> {
+    return apiRequest('/simulate', {
+      method: 'POST',
+      body: JSON.stringify({ video_percentage, total_volume_gb }),
+    })
+  },
+
+  async getVanguardAnalysis(flow_id: string): Promise<{ flow_id: string; app_type: string; confidence: number; explanation: string }> {
+    return apiRequest(`/investigations/${encodeURIComponent(flow_id)}/vanguard`, {
+      method: 'POST',
+    })
+  },
+
   // Get policy suggestions
   async listSuggestions(): Promise<Suggestion[]> {
     return apiRequest<Suggestion[]>("/suggestions")
@@ -90,18 +103,7 @@ export const api = {
     return await res.json()
   },
 
-  async getLlmSettings() {
-  const res = await fetch(`${API_BASE_URL}/admin/llm-settings`, { headers: ADMIN_AUTH_HEADER ? { Authorization: ADMIN_AUTH_HEADER } : undefined })
-  return await res.json()
-  },
-
-  async setLlmSettings(llm_enabled: boolean, llm_model: string) {
-    const form = new FormData()
-    form.append("llm_enabled", String(llm_enabled))
-    form.append("llm_model", llm_model)
-  const res = await fetch(`${API_BASE_URL}/admin/llm-settings`, { method: "POST", body: form, headers: ADMIN_AUTH_HEADER ? { Authorization: ADMIN_AUTH_HEADER } : undefined })
-    return await res.json()
-  },
+  // LLM admin utilities removed
 }
 
 export { ApiError }

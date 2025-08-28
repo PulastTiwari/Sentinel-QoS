@@ -1,9 +1,10 @@
 import type React from "react"
 
 import type { Metadata } from "next"
-import { Source_Sans_3, Playfair_Display, Geist_Mono } from "next/font/google"
+import { Source_Sans_3, Playfair_Display, Geist_Mono, Open_Sans } from "next/font/google"
 import { ErrorBoundary } from "@/components/ui/error-boundary" // Added error boundary import
-import NavBar from "@/components/ui/tubelight-navbar"
+import DockNav from '@/components/ui/dock-nav'
+import SplashCursor from "@/components/ui/splash-cursor"
 import Image from "next/image"
 import Link from "next/link"
 import "./globals.css"
@@ -12,6 +13,12 @@ const sourceSans = Source_Sans_3({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-geist-sans",
+})
+
+const openSans = Open_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-open-sans",
 })
 
 const playfairDisplay = Playfair_Display({
@@ -41,24 +48,24 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sourceSans.variable} ${playfairDisplay.variable} ${geistMono.variable} antialiased dark`}
+      className={`${openSans.variable} ${sourceSans.variable} ${playfairDisplay.variable} ${geistMono.variable} antialiased dark`}
     >
       <body className="min-h-screen bg-background text-foreground">
-        <ErrorBoundary>{children}</ErrorBoundary>
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
+        <SplashCursor />
 
-  {/* universal home button removed per request */}
-        {/* site-wide fixed floating navbar */}
-        <NavBar
-          items={[
-            { name: "Dashboard", url: "/dashboard", icon: "Home" },
-            { name: "Traffic Monitor", url: "/traffic", icon: "Activity" },
-            { name: "AI Classification", url: "/classify", icon: "Cpu" },
-            { name: "Suggestions", url: "/suggestions", icon: "Zap" },
-            { name: "Model Status", url: "/model", icon: "ServerCog" },
-            { name: "Admin", url: "/admin", icon: "Settings" },
-            { name: "Investigations", url: "/investigations", icon: "Search" },
-          ]}
-        />
+  {/* site-wide fixed dock (home is first item) */}
+                    <DockNav
+                      items={[
+                        { name: 'Home', url: '/', icon: 'Home' },
+                        { name: 'Dashboard', url: '/dashboard', icon: 'BarChart' },
+                        { name: 'Traffic', url: '/traffic', icon: 'Cpu' },
+                        { name: 'Classify', url: '/classify', icon: 'Tag' },
+                        { name: 'Admin', url: '/admin', icon: 'Settings' },
+                      ]}
+                    />
       </body>
     </html>
   )

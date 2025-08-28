@@ -79,7 +79,7 @@ export function AIEngineStatus({ logs, className }: AIEngineStatusProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-3 h-3 rounded-full bg-primary" />
-              <h4 className="font-semibold">Vanguard (LLM)</h4>
+              <h4 className="font-semibold">Vanguard</h4>
             </div>
             <Badge variant="secondary" className={vanguardHealth.color}>
               {vanguardHealth.status}
@@ -99,7 +99,7 @@ export function AIEngineStatus({ logs, className }: AIEngineStatusProps) {
 
           <div>
             <div className="flex justify-between text-xs text-muted-foreground mb-1">
-              <span>LLM Fallback & Explanations</span>
+              <span>Fallback & Explanations</span>
               <span>{vanguardPercentage.toFixed(1)}%</span>
             </div>
             <Progress value={vanguardPercentage} className="h-2" />

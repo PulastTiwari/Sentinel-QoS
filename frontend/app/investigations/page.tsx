@@ -10,45 +10,33 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import type { Investigation } from "@/lib/types"
 import { cn } from "@/lib/utils"
-
-// Mock investigations data
-const mockInvestigations: Investigation[] = [
-  {
-    id: "inv_001",
-    flow_id: "flow_12345",
-    timestamp: "2024-01-15T14:30:00Z",
-    details:
-      "Unusual traffic pattern detected from 192.168.1.100 - potential P2P file sharing misclassified as web browsing",
-    status: "open",
-  },
-  {
-    id: "inv_002",
-    flow_id: "flow_12346",
-    timestamp: "2024-01-15T13:15:00Z",
-    details:
-      "High bandwidth usage on port 443 with low packet count - investigating potential video streaming over HTTPS",
-    status: "in-progress",
-  },
-  {
-    id: "inv_003",
-    flow_id: "flow_12347",
-    timestamp: "2024-01-15T12:00:00Z",
-    details: "VoIP classification confidence below threshold - manual verification completed, classification correct",
-    status: "resolved",
-  },
-  {
-    id: "inv_004",
-    flow_id: "flow_12348",
-    timestamp: "2024-01-15T11:45:00Z",
-    details: "Gaming traffic detected during business hours from corporate network - policy violation investigation",
-    status: "escalated",
-  },
-]
+import ExplanationChart from '@/components/investigations/explanation-chart'
+import { api } from '@/lib/api'
+import { useToast } from '@/components/ui/use-toast'
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog'
+import { useEffect } from 'react'
 
 export default function InvestigationsPage() {
   const { data, loading, error } = useLiveStatus()
   const [filterStatus, setFilterStatus] = useState<string>("all")
-  const [investigations] = useState<Investigation[]>(mockInvestigations)
+
+  const investigations: Investigation[] = (data?.investigations || []).map((i: any, idx: number) => ({
+    id: i.get('flow_id', `inv_${idx}`) || i.flow_id || `inv_${idx}`,
+    flow_id: i.flow_id || i.get?.('flow_id') || i.flow_id || 'unknown',
+    timestamp: i.timestamp || new Date().toISOString(),
+    details: i.vanguard_explanation || i.sentry_explanation || JSON.stringify(i.features || i) || 'No details',
+    status: i.status || 'open',
+    shap: i.shap || undefined,
+  }))
 
   const filteredInvestigations = investigations.filter((inv) => filterStatus === "all" || inv.status === filterStatus)
 
@@ -78,6 +66,95 @@ export default function InvestigationsPage() {
   }
 
   const statusCounts = getStatusCounts()
+
+// Small client component to trigger Vanguard analysis and display the result
+function GenerateVanguardButton({ investigation }: { investigation: any }) {
+  const { toast } = useToast()
+  const [loading, setLoading] = useState(false)
+  const [analysis, setAnalysis] = useState<{ app_type: string; confidence: number; explanation: string } | null>(null)
+  const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    // reset on investigation change
+    setAnalysis(null)
+    setLoading(false)
+    setOpen(false)
+  }, [investigation.flow_id])
+
+  const run = async () => {
+    setLoading(true)
+    setOpen(true)
+    setAnalysis(null)
+    try {
+      // Use the existing POST endpoint (no SSE) and display the returned analysis
+      const res = await api.getVanguardAnalysis(investigation.flow_id)
+      if (res) {
+        setAnalysis({ app_type: res.app_type, confidence: res.confidence, explanation: res.explanation })
+        toast({ title: 'Vanguard analysis ready', description: `App: ${res.app_type} (conf ${Math.round((res.confidence || 0) * 100)}%)` })
+      } else {
+        toast({ title: 'Vanguard analysis', description: 'No analysis returned', variant: 'destructive' })
+      }
+    } catch (err: any) {
+      console.error('Vanguard analysis failed', err)
+      toast({ title: 'Vanguard analysis failed', description: err?.message || String(err), variant: 'destructive' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <>
+      <Button variant="ghost" size="sm" onClick={run} disabled={loading}>
+        {loading ? 'Analyzing...' : 'Generate Vanguard Analysis'}
+      </Button>
+
+      <Dialog open={open} onOpenChange={(v) => setOpen(v)}>
+        <DialogTrigger asChild>
+          {/* invisible trigger; we open programmatically */}
+          <span />
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Vanguard Analysis — {investigation.flow_id}</DialogTitle>
+              <DialogDescription>Natural language explanation and model SHAP breakdown.</DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-2 space-y-4">
+            {loading ? (
+              <div className="flex items-center space-x-3">
+                <LoadingSpinner />
+                <div className="text-sm text-muted-foreground">Vanguard is running — awaiting response...</div>
+              </div>
+            ) : analysis ? (
+              <div>
+                <div className="text-sm font-medium">Prediction: {analysis.app_type} <span className="text-xs text-muted-foreground">({Math.round(analysis.confidence*100)}%)</span></div>
+                <div className="mt-2 text-sm leading-relaxed">{analysis.explanation}</div>
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">No analysis yet.</div>
+            )}
+
+            {investigation.shap && (
+              <div>
+                <div className="text-sm font-medium">Model SHAP Explanation</div>
+                <div className="mt-2">
+                  <ExplanationChart data={investigation.shap} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" onClick={() => setOpen(false)}>Close</Button>
+            </div>
+          </DialogFooter>
+          <DialogClose />
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
 
   if (error) {
     return (
@@ -213,12 +290,20 @@ export default function InvestigationsPage() {
                         <Button variant="outline" size="sm">
                           Add Notes
                         </Button>
-                        {investigation.status === "resolved" && (
-                          <Button variant="outline" size="sm">
-                            Export Report
-                          </Button>
-                        )}
+                          {investigation.status === "resolved" && (
+                            <Button variant="outline" size="sm">
+                              Export Report
+                            </Button>
+                          )}
+                          <GenerateVanguardButton investigation={investigation} />
                       </div>
+                    {/* Explanation chart when shap exists */}
+                    {investigation.shap && (
+                      <div className="mt-4">
+                        <span className="text-sm font-medium text-muted-foreground">Model Explanation</span>
+                        <ExplanationChart data={investigation.shap} />
+                      </div>
+                    )}
                     </div>
                   </CardContent>
                 </Card>
