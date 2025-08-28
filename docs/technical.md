@@ -31,6 +31,7 @@ See `docs/architecture.mmd` for a mermaid component diagram (if present).
 Prereqs: Python 3.11+, pnpm, Docker (optional)
 
 1. Backend (venv):
+
 ```bash
 cd backend
 python -m venv .venv
@@ -40,6 +41,7 @@ uvicorn backend.orchestrator:app --reload --host 0.0.0.0 --port 8000
 ```
 
 2. Frontend (dev):
+
 ```bash
 cd frontend
 pnpm install
@@ -47,6 +49,7 @@ pnpm dev
 ```
 
 3. Or run both with docker-compose (dev):
+
 ```bash
 docker compose -f docker-compose.dev.yml up --build
 ```

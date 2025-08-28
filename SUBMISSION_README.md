@@ -7,10 +7,12 @@ Classify User Application Traffic at the Network in a Multi-UE Connected Scenari
 ---
 
 ## Team
+
 - Team name: <YOUR_TEAM_NAME>
 - Team members: <Member 1>, <Member 2>, <Member 3>
 
 ## Demo Video Link
+
 - YouTube (unlisted or public): <PASTE_YOUTUBE_LINK_HERE>
 
 ## Project Artefacts (Included in this repository)
